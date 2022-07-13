@@ -6,6 +6,7 @@ namespace Quiz
     {
         private const string userFileName = @"d:\0\c_sharp\quiz\users.json";
         private const string questionFileName = @"d:\0\c_sharp\quiz\questions.json";
+        private const string scoreFileName = @"d:\0\c_sharp\quiz\score.json";
         public static List<User> ReadUserList()
         {
             if (!File.Exists(userFileName)) return new List<User>();
@@ -34,5 +35,18 @@ namespace Quiz
             File.WriteAllText(questionFileName, json);
         }
 
+        public static List<Score> ReadScoreList()
+        {
+            if (!File.Exists(scoreFileName)) return new List<Score>();
+            var json = File.ReadAllText(scoreFileName);
+            var list = JsonSerializer.Deserialize<List<Score>>(json);
+            return list;
+        }
+
+        public static void SaveScoreList(List<Score> score_list)
+        {
+            string json = JsonSerializer.Serialize(score_list);
+            File.WriteAllText(scoreFileName, json);
+        }
     }
 }

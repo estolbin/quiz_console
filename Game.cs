@@ -74,6 +74,7 @@ namespace Quiz
                 Console.ResetColor();
 
             }
+            Statistics.SaveStatistic();
         }
     }
 }

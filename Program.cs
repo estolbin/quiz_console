@@ -6,6 +6,12 @@ using System.Collections.Generic;
 namespace Quiz
 {
 
+    public enum TypeMenu
+    {
+        MainMenu,
+        RegistrationMenu
+    }   
+
     class Program
     {
         public static void Main(string[] args)

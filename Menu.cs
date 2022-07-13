@@ -1,10 +1,6 @@
 namespace Quiz
 {
-    public enum TypeMenu
-    {
-        MainMenu,
-        RegistrationMenu
-    }   
+
     public static class Menu
     {
         public static bool ContinueGame = true;
@@ -79,12 +75,14 @@ namespace Quiz
         private static string InputName() 
         {
             Console.WriteLine("Введите имя: ");
-            return Console.ReadLine().Trim();
+            string? name = Console.ReadLine();
+            return name == null ? "" : name;
         }
         private static string PassToHash()
         {
             Console.WriteLine("Введите пароль: ");
-            return Base64Encode(Console.ReadLine());
+            string? pass = Console.ReadLine();
+            return pass == null ? "" : Base64Encode(pass);
         } 
 
         public static void Login()
@@ -108,7 +106,7 @@ namespace Quiz
                 }
             }
             PrintError($"Не найден пользователь с именем {name}");
-            //ShowMenu(1, TypeMenu.RegistrationMenu);
+            return;
         }
 
         public static void Register()
@@ -122,11 +120,10 @@ namespace Quiz
             {
                 PrintError($"Пользователь с именем {name} уже зарегистрирован!");
                 return;
-                //ShowMenu(100, TypeMenu.RegistrationMenu);
             }
             string hashPass = PassToHash();
             System.Console.WriteLine("Дата рождения (в формате \"2022-01-01\"): ");
-            string _bDate = Console.ReadLine().Trim();
+            string? _bDate = Console.ReadLine();
             DateTime bDate;
             DateTime.TryParse(_bDate, out bDate);
 
@@ -137,7 +134,13 @@ namespace Quiz
 
         public static void Statistic()
         {
-            System.Console.WriteLine("Статистика");
+            Header();
+            System.Console.WriteLine("\t\tСтатистика:");
+            var list = FileHelper.ReadScoreList().OrderByDescending(x => x.score);
+            foreach (var item in list)
+            {
+                Console.WriteLine($"{item.user.Name}\t-\t{item.time}\t--\t\t{item.score}" );
+            }
             Console.ReadKey();
             ShowMenu(1, TypeMenu.MainMenu);
         }
@@ -146,10 +149,9 @@ namespace Quiz
         {
             Question question = new Question();
             System.Console.WriteLine("Текст вопроса: ");
-            question.describe = Console.ReadLine().Trim();
+            question.describe = Console.ReadLine();
             System.Console.WriteLine("Введите область знаний: ");
-            question.area = Console.ReadLine().Trim();
-            // System.Console.WriteLine("Введите ответа. После ввода одного ответа - нажмите Enter. Чтобы закончить ввод ответов - нажмите Escape");
+            question.area = Console.ReadLine();
             question.answer_list = new List<string>();
             Console.Write("Введите количество ответов: ");
             int n; 
