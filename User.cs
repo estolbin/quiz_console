@@ -10,33 +10,21 @@ namespace Quiz
         public bool IsAdmin
         {
             get { return isAdmin; }
-            set 
-            { 
-                isAdmin = true;
-                // try {
-                // List<User> user_list = FileHelper.ReadUserList();
-                // if (user_list.Count == 0) isAdmin = true; 
-                // else isAdmin = false;
-                // } 
-                // catch 
-                // {
-                //     isAdmin = true; // нет файла, значит нет пользователей.
-                // }
-            }
+            set { isAdmin = value;  }
         }
-       
 
         public User() {}
-        public User(string Name, string HashPass, DateTime bDate)
+        public User(string Name, string HashPass, DateTime bDate, bool isAdmin = false)
         {
             this.Name = Name;
             this.HashPass = HashPass;
             this.bDate = bDate;
+            this.isAdmin = isAdmin;
         }
 
         public override string ToString()
         {
-            return $"{Name}";
+            return $"{Name}" + (IsAdmin ? " (admin)":"");
         }
 
     }

@@ -19,6 +19,15 @@ namespace Quiz
             ShowMenu(1, TypeMenu.MainMenu);
         }
 
+        public static void PrintError(string Message)
+        {
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.WriteLine(Message);
+            Console.ResetColor();
+            Console.ReadKey();
+        }
+
+
         public static void Header()
         {
             Console.Clear();
@@ -37,7 +46,8 @@ namespace Quiz
             System.Console.WriteLine("2. Начать игру");
             System.Console.WriteLine("3. Посмотреть статистику");
             System.Console.WriteLine("4. Выход");
-            if (Game.currentUser.IsAdmin)
+            bool isAdmin = (Game.currentUser == null ? false : Game.currentUser.IsAdmin);
+            if (isAdmin)
             {
                 System.Console.WriteLine("5. Добавить вопросы.");
             }
@@ -80,45 +90,47 @@ namespace Quiz
         public static void Login()
         {
             string name = InputName();
-            string hashPass = PassToHash();
             List<User> list_users = FileHelper.ReadUserList();
             var users = list_users.Where(x => x.Name == name).Take(1);
-            
-            foreach (var user in users)
+            if (users.Count() != 0)            
             {
-                if (user.HashPass != hashPass)
+                string hashPass = PassToHash();
+                foreach (var user in users)
                 {
-                    Console.ForegroundColor = ConsoleColor.Red;
-                    Console.WriteLine("Неправильный пароль!");
-                    Console.ResetColor();
-                    Console.ReadKey();
-                    return;
+                    if (user.HashPass != hashPass)
+                    {
+                        PrintError("Неправильный пароль!");
+                        return;
+                    }
+                    Game.currentUser = user;
+                    Game.question_list = FileHelper.ReadQuestionList();
+                    ShowMenu(1, TypeMenu.MainMenu);
                 }
-                Game.currentUser = user;
-                Game.question_list = FileHelper.ReadQuestionList();
-                ShowMenu(1, TypeMenu.MainMenu);
             }
-
+            PrintError($"Не найден пользователь с именем {name}");
+            //ShowMenu(1, TypeMenu.RegistrationMenu);
         }
 
         public static void Register()
         {
+            bool isAdmin = false;
             List<User> list_users = FileHelper.ReadUserList();
+            if (list_users.Count == 0) isAdmin = true;
             string name = InputName();
             var users = list_users.Where(x => x.Name == name).Take(1);
             foreach (var item in users)
             {
-                Console.ForegroundColor = ConsoleColor.Red;
-                System.Console.WriteLine($"Пользователь с именем {name} уже зарегистрирован!");
-                Console.ReadKey();
-                ShowMenu(100, TypeMenu.RegistrationMenu);
+                PrintError($"Пользователь с именем {name} уже зарегистрирован!");
+                return;
+                //ShowMenu(100, TypeMenu.RegistrationMenu);
             }
             string hashPass = PassToHash();
             System.Console.WriteLine("Дата рождения (в формате \"2022-01-01\"): ");
-            string _bDate = Console.ReadLine();
-            DateTime bDate = DateTime.Parse(_bDate);
-            //List<User> list_users = new List<User>();
-            list_users.Add(new User{Name = name, HashPass = hashPass, bDate = bDate}) ;
+            string _bDate = Console.ReadLine().Trim();
+            DateTime bDate;
+            DateTime.TryParse(_bDate, out bDate);
+
+            list_users.Add(new User{Name = name, HashPass = hashPass, bDate = bDate, IsAdmin = isAdmin}) ;
             FileHelper.SaveUserList(list_users);
 
         }
@@ -134,22 +146,18 @@ namespace Quiz
         {
             Question question = new Question();
             System.Console.WriteLine("Текст вопроса: ");
-            question.describe = Console.ReadLine();
+            question.describe = Console.ReadLine().Trim();
             System.Console.WriteLine("Введите область знаний: ");
-            question.area = Console.ReadLine();
-            System.Console.WriteLine("Введите ответа. После ввода одного ответа - нажмите Enter. Чтобы закончить ввод ответов - нажмите Escape");
+            question.area = Console.ReadLine().Trim();
+            // System.Console.WriteLine("Введите ответа. После ввода одного ответа - нажмите Enter. Чтобы закончить ввод ответов - нажмите Escape");
             question.answer_list = new List<string>();
-            int i = 1;
-            //while (Console.ReadKey().Key != ConsoleKey.Escape)
-            while(true)
+            Console.Write("Введите количество ответов: ");
+            int n; 
+            Int32.TryParse(Console.ReadLine(), out n);
+            for (int i = 0; i < n; i++)
             {
-                //System.Console.WriteLine($"{i}) ");
+                Console.Write($"{i}). ");
                 question.answer_list.Add(Console.ReadLine());
-                Console.ForegroundColor = ConsoleColor.DarkGray;
-                System.Console.WriteLine("Продолжить?");
-                var key = Console.ReadKey();
-                if (key.Key == ConsoleKey.Escape) break;
-
             }
             System.Console.WriteLine("Введите номер (номера через пробел) правильного/ных ответа/ов:");
             question.answer_right = new List<int>();
@@ -157,51 +165,54 @@ namespace Quiz
             Game.AddQuestion(question);
         }
 
-
-        public delegate void MenuHandler();
+        public static void Logout()
+        {
+            Game.currentUser = null;
+        }
 
         public static void ShowMenu(int screen, TypeMenu type)
         {
-            MenuHandler? menu = (type == TypeMenu.MainMenu ? MainMenu : ShowFirstScreen);
             if (type == TypeMenu.MainMenu)
             {
-                menu = MainMenu;
                 switch (screen)
                 {
                     case 1:
-                        menu = MainMenu;
+                        MainMenu();
                         break;
                     case 2:
-                        menu = StartGame;
+                        StartGame();
                         break;
                     case 3:
-                        menu = Statistic;
+                        Statistic();
                         break;
                     case 4: 
                         ContinueGame = false;
                         break;
                     case 5:
-                        menu = AddQuestion;
+                        bool isAdmin = Game.currentUser == null ? false : Game.currentUser.IsAdmin;
+                        if (isAdmin) AddQuestion();
+                        else MainMenu();
                         break;
                 }
             }
             else if (type == TypeMenu.RegistrationMenu)
             {
-                menu = ShowFirstScreen;
                 switch (screen)
                 {
                     case 1:
-                        menu = Login;
+                        Login();
                         break;
                     case 2:
-                        menu = Register;
+                        Register();
                         break;
                     case 3:
                         ContinueGame = false;
                         break;
+                    case 100:
+                        ShowFirstScreen();
+                        break;
                 }
             }
-            if (ContinueGame) menu?.Invoke();
         }
     }
 }

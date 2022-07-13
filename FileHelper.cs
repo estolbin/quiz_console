@@ -8,6 +8,7 @@ namespace Quiz
         private const string questionFileName = @"d:\0\c_sharp\quiz\questions.json";
         public static List<User> ReadUserList()
         {
+            if (!File.Exists(userFileName)) return new List<User>();
             var json = File.ReadAllText(userFileName);
             var list = JsonSerializer.Deserialize<List<User>>(json);
             return list;
