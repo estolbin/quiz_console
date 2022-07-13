@@ -2,8 +2,19 @@ namespace Quiz
 {
     class Game
     {
-        public User user { get; set; }
+        public static User currentUser { get; set; }
         private const int QuestionCount = 20;
+        private static int score;
+        public static int Score
+        {
+            get { return score; }
+            set 
+            { 
+                if ((score - value) < 0) score = 0;
+                score = value; 
+            }
+        }
+        
         List<Question> question_list = new List<Question>();
 
         public Game() {}
@@ -57,6 +68,7 @@ namespace Quiz
                     {
                         Console.ForegroundColor = ConsoleColor.Green;
                         System.Console.WriteLine("Верно!");   
+                        Game.score += 100;
                     }
                     else
                     {
@@ -70,7 +82,7 @@ namespace Quiz
                     
                     System.Console.WriteLine("Не выбраны варианты ответов!");;
                 }
-
+                Console.ReadKey();
                 Console.ResetColor();
 
             }
