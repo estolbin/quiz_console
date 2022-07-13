@@ -95,6 +95,7 @@ namespace Quiz
                     return;
                 }
                 Game.currentUser = user;
+                Game.question_list = FileHelper.ReadQuestionList();
                 ShowMenu(1, TypeMenu.MainMenu);
             }
 
@@ -131,8 +132,31 @@ namespace Quiz
 
         public static void AddQuestion()
         {
-            
+            Question question = new Question();
+            System.Console.WriteLine("Текст вопроса: ");
+            question.describe = Console.ReadLine();
+            System.Console.WriteLine("Введите область знаний: ");
+            question.area = Console.ReadLine();
+            System.Console.WriteLine("Введите ответа. После ввода одного ответа - нажмите Enter. Чтобы закончить ввод ответов - нажмите Escape");
+            question.answer_list = new List<string>();
+            int i = 1;
+            //while (Console.ReadKey().Key != ConsoleKey.Escape)
+            while(true)
+            {
+                //System.Console.WriteLine($"{i}) ");
+                question.answer_list.Add(Console.ReadLine());
+                Console.ForegroundColor = ConsoleColor.DarkGray;
+                System.Console.WriteLine("Продолжить?");
+                var key = Console.ReadKey();
+                if (key.Key == ConsoleKey.Escape) break;
+
+            }
+            System.Console.WriteLine("Введите номер (номера через пробел) правильного/ных ответа/ов:");
+            question.answer_right = new List<int>();
+            question.answer_right = Array.ConvertAll(Console.ReadLine().Trim().Split(' '), Convert.ToInt32).ToList();
+            Game.AddQuestion(question);
         }
+
 
         public delegate void MenuHandler();
 

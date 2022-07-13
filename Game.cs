@@ -15,34 +15,43 @@ namespace Quiz
             }
         }
         
-        List<Question> question_list = new List<Question>();
+        public static List<Question> question_list { get; set; }// = new List<Question>();
 
         public Game() {}
 
         public void CreateQuestionList(string area)
         {
-            List<Question> temp = new List<Question>();
-            Question q1 = new Question();
-            q1.describe = "Какого цвета небо?";
-            q1.area = area;
-            q1.answer_list = new List<string>();
-            q1.answer_list.Add("Синее");
-            q1.answer_list.Add("Зеленое");
-            q1.answer_list.Add("Никакое");
-            q1.answer_list.Add("Коричневое");
+            // List<Question> temp = new List<Question>();
+            // Question q1 = new Question();
+            // q1.describe = "Какого цвета небо?";
+            // q1.area = area;
+            // q1.answer_list = new List<string>();
+            // q1.answer_list.Add("Синее");
+            // q1.answer_list.Add("Зеленое");
+            // q1.answer_list.Add("Никакое");
+            // q1.answer_list.Add("Коричневое");
 
-            q1.answer_right = new List<int>();
-            q1.answer_right.Add(1);
+            // q1.answer_right = new List<int>();
+            // q1.answer_right.Add(1);
 
-            temp.Add(q1);
-
-            question_list = temp;
+            // temp.Add(q1);
+            List<Question> temp = FileHelper.ReadQuestionList();
+            foreach (var item in temp)
+            {
+                System.Console.WriteLine(item.describe);
+            }
+            
+            question_list = new List<Question>();
+            question_list.AddRange(temp.Select(x => x).Take(20));
         }
 
-        public void AddQuestion(Question question)
+        public static void AddQuestion(Question question)
         {
-            if (question_list.Count < QuestionCount) question_list.Add(question);
-            else System.Console.WriteLine("Уже добавлено необходимое количество вопросов!");
+            List<Question> question_list = FileHelper.ReadQuestionList();
+            question_list.Add(question);
+            FileHelper.SaveQuestionList(question_list);
+            // if (question_list.Count < QuestionCount) question_list.Add(question);
+            // else System.Console.WriteLine("Уже добавлено необходимое количество вопросов!");
         }
 
         public void Start()

@@ -1,6 +1,7 @@
 namespace Quiz
 {
-    class Question
+    [Serializable]
+    public class Question
     {
         public string describe { get; set; }
         public string area { get; set; }
