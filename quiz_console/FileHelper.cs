@@ -9,46 +9,49 @@ namespace Quiz
         private const string userFileName = @"..\..\..\users.json";
         private const string questionFileName = @"..\..\..\questions.json";
         private const string scoreFileName = @"..\..\..\score.json";
-        public static List<User> ReadUserList()
+
+        private static void SaveListToFile<T>(List<T> list, string fileName)
         {
-            if (!File.Exists(userFileName)) return new List<User>();
-            var json = File.ReadAllText(userFileName);
-            var list = JsonSerializer.Deserialize<List<User>>(json);
-            return list;
+            string json = JsonSerializer.Serialize(list);
+            File.WriteAllText(fileName, json);
         }
 
-        public static void SaveUserList(List<User> user_list)
+        private static List<T> ReadListFromFile<T>(string fileName)
         {
-            string json = JsonSerializer.Serialize(user_list);
-            File.WriteAllText(userFileName, json);
+            //if (!File.Exists(userFileName)) return new List<User>();
+            if (!File.Exists(fileName)) return new List<T>();
+            var json = File.ReadAllText(fileName);
+            var list = JsonSerializer.Deserialize<List<T>>(json);
+            return list;
+
+        }
+
+        public static List<User> ReadUserList()
+        {
+            return ReadListFromFile<User>(userFileName);
         }
 
         public static List<Question> ReadQuestionList()
         {
-            if (!File.Exists(questionFileName)) return new List<Question>();
-            var json = File.ReadAllText(questionFileName);
-            var list = JsonSerializer.Deserialize<List<Question>>(json);
-            return list;
+            return ReadListFromFile<Question>(questionFileName);
+        }
+        public static List<Score> ReadScoreList()
+        {
+            return ReadListFromFile<Score>(scoreFileName);
+        }
+        public static void SaveUserList(List<User> user_list)
+        {
+            SaveListToFile(user_list, userFileName);
         }
 
         public static void SaveQuestionList(List<Question> question_list)
         {
-            string json = JsonSerializer.Serialize(question_list);
-            File.WriteAllText(questionFileName, json);
-        }
-
-        public static List<Score> ReadScoreList()
-        {
-            if (!File.Exists(scoreFileName)) return new List<Score>();
-            var json = File.ReadAllText(scoreFileName);
-            var list = JsonSerializer.Deserialize<List<Score>>(json);
-            return list;
+            SaveListToFile(question_list, questionFileName);
         }
 
         public static void SaveScoreList(List<Score> score_list)
         {
-            string json = JsonSerializer.Serialize(score_list);
-            File.WriteAllText(scoreFileName, json);
+            SaveListToFile(score_list, scoreFileName);
         }
     }
 }
